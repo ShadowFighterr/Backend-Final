@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Edit Task</h1>
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>  <!-- Add this line -->
+    
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" name="title" class="form-control" value="{{ task.title }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="info">Details</label>
+        <textarea name="info" class="form-control">{{ task.info }}</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label for="due_date">Due Date</label>
+        <input type="date" name="due_date" class="form-control" value="{{ task.due_date }}">
+    </div>
+    
+    <div class="form-group">
+        <label for="status">Status</label>
+        <select name="status" class="form-control">
+            <option value="todo" {% if task.status=='todo' %}selected{% endif %}>To Do</option>
+            <option value="inprogress" {% if task.status=='inprogress' %}selected{% endif %}>In Progress</option>
+            <option value="done" {% if task.status=='done' %}selected{% endif %}>Done</option>
+        </select>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Update Task</button>
+</form>
+{% endblock %}

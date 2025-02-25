@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>User Profile</h1>
+
+<!-- Basic Info -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Account Information</h5>
+        <p>Username: {{ user.username }}</p>
+        <p>Email: {{ user.email }}</p>
+    </div>
+</div>
+
+<!-- Password Change Form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Change Password</h5>
+        <form method="POST" action="{{ url_for('profile') }}">
+            {{ password_form.hidden_tag() }}
+            
+            <div class="form-group">
+                {{ password_form.current_password.label }}
+                {{ password_form.current_password(class="form-control", id="currentPassword") }}
+            </div>
+            
+            <div class="form-group">
+                {{ password_form.new_password.label }}
+                <div class="input-group">
+                    {{ password_form.new_password(class="form-control", id="newPassword") }}
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" 
+                                onclick="togglePassword('newPassword')">
+                            👁
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                {{ password_form.confirm_password.label }}
+                {{ password_form.confirm_password(class="form-control") }}
+            </div>
+            
+            {{ password_form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+</div>
+
+<!-- Delete Account Section -->
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title text-danger">Danger Zone</h5>
+        <form action="{{ url_for('delete_account') }}" method="POST">
+            {{ delete_form.hidden_tag() }}
+            <button type="submit" class="btn btn-danger" 
+                onclick="return confirm('This will permanently delete your account! Continue?')">
+                Delete Account
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Password Toggle Script -->
+<script>
+function togglePassword(fieldId) {
+    const passwordField = document.getElementById(fieldId);
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+    } else {
+        passwordField.type = "password";
+    }
+}
+</script>
+{% endblock %}

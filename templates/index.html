@@ -1,27 +1,130 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="text-center">Task Manager</h1>
+<h1 class="text-center">Kanban Task Manager</h1>
+
+<!-- In the Task Add Form section -->
 <form action="{{ url_for('add_task') }}" method="post" class="mb-4">
+    <!-- Add CSRF Token Field -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
     <div class="form-group">
         <input type="text" name="title" class="form-control" placeholder="Task Title" required>
     </div>
     <div class="form-group">
-        <textarea name="description" class="form-control" placeholder="Task Description"></textarea>
+        <textarea name="info" class="form-control" placeholder="Task Details"></textarea>
+    </div>
+    <div class="form-group">
+        <input type="date" name="due_date" class="form-control">
     </div>
     <button type="submit" class="btn btn-primary btn-block">Add Task</button>
 </form>
-<ul class="list-group">
-    {% for task in tasks %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-            <h5>{{ task.title }}</h5>
-            <p>{{ task.description }}</p>
+
+<!-- Kanban Columns -->
+<div class="row">
+    <!-- To Do Column -->
+    <div class="col-md-4">
+        <h3>To Do</h3>
+        <div class="kanban-column" data-status="todo" style="min-height:300px; border:1px solid #ccc; padding:10px;">
+            {% for task in tasks %}
+                {% if task.status == 'todo' %}
+                <div class="kanban-item card mb-2" draggable="true" data-id="{{ task.id }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ task.title }}</h5>
+                        <p class="card-text">{{ task.info }}</p>
+                        <small>Due: {{ task.due_date or 'N/A' }}</small>
+                        <br>
+                        <a href="{{ url_for('edit_task', id=task.id) }}" class="btn btn-sm btn-primary mt-2">Edit</a>
+                        <a href="{{ url_for('delete_task', id=task.id) }}" class="btn btn-sm btn-danger mt-2">Delete</a>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
         </div>
-        <a href="{{ url_for('delete_task', id=task.id) }}" class="btn btn-danger">Delete</a>
-    </li>
-    {% else %}
-    <li class="list-group-item text-center">No tasks found</li>
-    {% endfor %}
-</ul>
+    </div>
+    <!-- In Progress Column -->
+    <div class="col-md-4">
+        <h3>In Progress</h3>
+        <div class="kanban-column" data-status="inprogress" style="min-height:300px; border:1px solid #ccc; padding:10px;">
+            {% for task in tasks %}
+                {% if task.status == 'inprogress' %}
+                <div class="kanban-item card mb-2" draggable="true" data-id="{{ task.id }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ task.title }}</h5>
+                        <p class="card-text">{{ task.info }}</p>
+                        <small>Due: {{ task.due_date or 'N/A' }}</small>
+                        <br>
+                        <a href="{{ url_for('edit_task', id=task.id) }}" class="btn btn-sm btn-primary mt-2">Edit</a>
+                        <a href="{{ url_for('delete_task', id=task.id) }}" class="btn btn-sm btn-danger mt-2">Delete</a>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Done Column -->
+    <div class="col-md-4">
+        <h3>Done</h3>
+        <div class="kanban-column" data-status="done" style="min-height:300px; border:1px solid #ccc; padding:10px;">
+            {% for task in tasks %}
+                {% if task.status == 'done' %}
+                <div class="kanban-item card mb-2" draggable="true" data-id="{{ task.id }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ task.title }}</h5>
+                        <p class="card-text">{{ task.info }}</p>
+                        <small>Due: {{ task.due_date or 'N/A' }}</small>
+                        <br>
+                        <a href="{{ url_for('edit_task', id=task.id) }}" class="btn btn-sm btn-primary mt-2">Edit</a>
+                        <a href="{{ url_for('delete_task', id=task.id) }}" class="btn btn-sm btn-danger mt-2">Delete</a>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Drag & Drop -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let draggedItem;
+
+    // When drag starts, keep a reference to the dragged element.
+    document.addEventListener('dragstart', function(event) {
+        if(event.target.classList.contains('kanban-item')){
+            draggedItem = event.target;
+        }
+    });
+
+    // Allow dropping over columns.
+    document.querySelectorAll('.kanban-column').forEach(column => {
+        column.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+
+        column.addEventListener('drop', function(e) {
+            e.preventDefault();
+            const newStatus = this.getAttribute('data-status');
+            const taskId = draggedItem.getAttribute('data-id');
+
+            // Append the dragged item to the new column.
+            this.appendChild(draggedItem);
+
+            // Send AJAX POST to update task status.
+            fetch('/update_status/' + taskId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'status=' + newStatus
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Status updated:', data);
+            });
+        });
+    });
+});
+</script>
+
 {% endblock %}

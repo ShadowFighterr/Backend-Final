@@ -1,0 +1,63 @@
+# Python and Flask specific
+__pycache__/
+*.py[cod]
+*$py.class
+instance/
+.env
+.flaskenv
+.webassets-cache
+
+# Virtual environments
+venv/
+env/
+myenv/
+ENV/
+env.bak/
+venv.bak/
+
+# Database and local development
+*.db
+*.sqlite
+*.log
+logs/
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# Build and distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Testing and coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.pytest/
+
+# Node.js (if applicable)
+node_modules/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Debug files
+debug.log
+
+# Migration versions (if not tracking generated migrations)
+migrations/versions/
+
+# Email temporary files
+*.eml
